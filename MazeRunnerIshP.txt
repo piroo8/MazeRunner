@@ -1,0 +1,178 @@
+import javax.swing.*; 
+import java.awt.Font;
+import javax.swing.UIManager;
+/**
+ * Maze Runner
+ *
+ * Program will let user play a maze and find there way to the exit.
+ * 
+ * @author Pierre Ishak
+ * 
+ * @version Dec 4, 2020
+ * 
+ */
+public class MazeRunnerIshP 
+{  
+  /**
+   * Boolean to track whether cancel button has been pressed
+   */
+  public static boolean isCancelPressed = false; // class variable to keep track of cancel button press, assume not pressed
+  
+  public static void main(String[] args)  
+  {
+    String[][] maze = // Maze I created
+    {
+      {" X "," X "," X "," X "," X "," X "," X "," X "," X "," X "},
+      {" X ","   ","   ","   ","   "," X ","   ","   ","   "," X "},
+      {" X ","   ","   "," X "," E "," X "," X ","   ","   "," X "},
+      {" X "," X ","   "," X "," X ","   ","   ","   ","   "," X "}, 
+      {" X ","   ","   "," X "," X ","   "," X ","   "," X "," X "},
+      {" X ","   "," X "," X "," X ","   "," X ","   ","   "," X "},
+      {" X ","   "," X ","   ","   ","   "," X "," X ","   "," X "},
+      {" X ","   "," X ","   "," X ","   ","   ","   ","   "," X "},
+      {" X ","   ","   ","   "," X ","   "," X "," X ","   "," * "},
+      {" X "," X "," X "," X "," X "," X "," X "," X "," X "," X "},
+    };
+    
+    printProgramDescription();
+    playGame(maze);
+  }
+  /**
+   * Prints out program description to the user
+   */
+  public static void printProgramDescription()
+  {
+    UIManager.put("OptionPane.messageFont", new Font("Calibri", Font.PLAIN, 16));
+    
+    //Prints Program Description
+    JOptionPane.showMessageDialog(null,"Hello!\nThis program will let you play a maze using \n' X '  to represent walls, and \n' * '  to represent the player in the maze, and \n' E '  to represent the 'Exit' for the maze.","Maze Game",JOptionPane.INFORMATION_MESSAGE);
+  }
+  /**
+   * Plays the maze game
+   */
+  public static void playGame(String[][] maze)
+  {
+    int[] postion = new int[] {8,9};
+    int postionRow = 8;
+    int postionCol = 9;
+    String outputMaze="";
+    int input;
+    
+    if (isCancelPressed==false) //if cancel button not pressed
+    {
+      do
+      {
+        outputMaze = generatesMazeIntoOutputFormat (maze);
+        input = getDirection(outputMaze);
+        
+        if (input == -1)// input was cancel (the user deciding they don't want to complete the maze) (quiting)
+        {
+          isCancelPressed = true;  //set sentinel to indicate cancel button was pressed
+          break;
+        }
+        
+        postion = updateMovement(input,maze,postion);
+        
+      }while (maze[2][4] == " E ");
+    }
+    congratulateUser();
+  }
+  /**
+   * Gets direction the user wants to move the character
+   * 
+   * @param outputMaze The current (most updated) map
+   * 
+   * @return The user's chosen direction
+   */
+  public static int getDirection(String outputMaze)
+  {
+    UIManager.put("OptionPane.messageFont", new Font("monospaced", Font.PLAIN, 16));
+    int input;
+    String[] directions = {"RIGHT","UP","DOWN","LEFT"};
+    
+    input = JOptionPane.showOptionDialog(null," Which Direction do you want to go?\n(Press x in the top right corner to stop playing) \n\n" + outputMaze + "\n","Maze Game", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, directions, directions[0]);
+    
+    return input;
+  }
+  /**
+   * Updates map with the players new chosen direction
+   * 
+   * @param input The user's chosen direction
+   * @param maze The maze
+   * @param postion The current postion of the player in the maze
+   * 
+   * @return The new postion of the player in the maze
+   */
+  public static int[] updateMovement (int input,String[][] maze,int[] postion)
+  {
+    if (input == 1 && maze[postion[0] - 1][postion[1]] != " X ")// Up
+    {
+      maze[postion[0]][postion[1]] = "   ";
+      maze[postion[0] - 1][postion[1]] = " * ";
+      postion[0] --;
+    }
+    
+    if (input == 2 && maze[postion[0] + 1][postion[1]] != " X ")// Down
+    {
+      maze[postion[0]][postion[1]] = "   ";
+      maze[postion[0] + 1][postion[1]] = " * ";
+      postion[0] ++;
+    }
+    
+    if (input == 3 && postion[1] != 9)// Left
+    {
+      if (maze[postion[0]][postion[1] + 1] != " X ")
+      {
+        maze[postion[0]][postion[1]] = "   ";
+        maze[postion[0]][postion[1] + 1] = " * ";
+        postion[1] ++;
+      }
+    }
+    
+    if (input == 0 && maze[postion[0]][postion[1] - 1] != " X ")// Right
+    {
+      maze[postion[0]][postion[1]] = "   ";
+      maze[postion[0]][postion[1] - 1] = " * ";
+      postion[1] --;;
+    }
+    
+    return postion;
+  }
+  /**
+   * Generates the maze into a string so it can be printed by swing
+   * 
+   * @param maze The maze
+   * 
+   * @return The maze that can be printed out by swing
+   */
+  public static String generatesMazeIntoOutputFormat(String[][] maze)
+  {
+    String outputMaze="";
+    
+    for (int row = 0; row < maze.length; row++)
+    {
+      outputMaze += "          ";
+      
+      for (int col = 0; col < maze[row].length; col++)
+      {
+        outputMaze += maze[row][col];
+      }
+      
+      outputMaze += "\n";
+    }
+    
+    return outputMaze;
+  }
+  /**
+   * Prints out a congratulation for the user
+   */
+  public static void congratulateUser()
+  {
+    UIManager.put("OptionPane.messageFont", new Font("Calibri", Font.PLAIN, 16));
+    
+    if (isCancelPressed==false) //if cancel button not pressed
+    {
+      JOptionPane.showMessageDialog(null,"Congrats!! you beat the maze.\nYou are the real Maze Runner","Maze Game",JOptionPane.INFORMATION_MESSAGE);
+    }
+  }
+}
